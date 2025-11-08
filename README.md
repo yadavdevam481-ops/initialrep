@@ -1,3 +1,4 @@
 # initialrep
 This is my first repository fog.
-Author: Deyam Yadav
+<br>
+Author: <i>Deyam Yadav</i>
