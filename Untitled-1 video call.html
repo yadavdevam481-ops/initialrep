@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+   <head> 
+     <h1>Video Call</h1>
+   </head> 
+   <body>
+    <video id="local-video" autoplay></video>
+    <button id="toggle-video">Toggle Video</button>
+    <button id="toggle-record">Start Recording</button>
+    <script>  
+        
+        let localVideoRef = document.getElementById("local-video")
+    const getStream=async() =>{
+        try{
+            stream=await navigator.mediaDevices.getUserMedia({
+                video:true,
+                audio:true,
+            });
+            console.log("STREAM",stream);
+            localVideoRef.srcObject=stream;
+            stream.getAudioTracks().forEach(track=>{
+                console.log("INIT",track);
+                //track enabled=false
+            });
+              localVideoRef.muted=true;
+           }catch(error){
+            console.error("STREAM Error",error)
+        }     
+    }
+
+    getStream()
+    const toggleVideoBtn=document.getElementById("toggle-video");
+        const recordBtn=document.getElementById("toggle-record");
+        recordBtn.addEventListener("click",()=>{
+            if(stream)return;
+            if(recording){
+                recorder=new MediaRecorder(stream);
+                recordedChunks={};
+                recorder.ondataavailable=(e)=>{
+                    if(e.data.size>0){
+                        console.log("CHUNK")
+                        recordedChunks.push(e.data);
+                        uploadChunkToServer(e.data);
+                    }
+                };
+                recorded.onstop=()=>{
+                    const blob=new Blob(recordedChunks,{type:"Video/webm"});
+                    const url=URL.createObjectURL(blob);
+                    recordedVideoRef.src=url;
+                    recordingComplete=true;
+                    downloadRecordedVideo(url);
+                    //mergeVideoChunk();
+                    stopTimer();
+                };
+                recorder.start(3000);
+                recording=true;
+                recordBtn.textContent="Stop Recording";
+                startTimer();
+            }else{
+                recorder.stop();
+                recording=false;
+                recordBtn.textContent="Start Recording";
+            }
+        });
+    const downloadRecordedVideo=async(videoUrl)=>{
+        const a=document.createElement("a");
+        a.href=videoUrl;
+        a,download="recording webm";
+        a.click();
+    }
+    </script>
+   </body>
+</html>
